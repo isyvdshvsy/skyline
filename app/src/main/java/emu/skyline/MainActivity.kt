@@ -45,6 +45,8 @@ import emu.skyline.utils.GpuDriverHelper
 import emu.skyline.utils.WindowInsetsHelper
 import javax.inject.Inject
 import kotlin.math.ceil
+import java.io.File
+import java.io.InputStream
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -98,6 +100,19 @@ class MainActivity : AppCompatActivity() {
     private fun AppItem.toViewItem() = AppViewItem(layoutType, this, ::selectStartGame, ::selectShowGameDialog)
 
     override fun onCreate(savedInstanceState : Bundle?) {
+
+    val context = this.applicationContext    // 替换为 applicationContext
+    val inputStream: InputStream = context.assets.open("prod.keys")
+    val outputFile = File(context.filesDir, "keys")
+
+outputFile.outputStream().use { outputStream ->
+    val buffer = ByteArray(4 * 1024) // or other buffer size
+    var read: Int
+    while (inputStream.read(buffer).also { read = it } != -1) {
+        outputStream.write(buffer, 0, read)
+    }
+    outputStream.flush()
+}
         // Need to create new instance of settings, dependency injection happens
         AppCompatDelegate.setDefaultNightMode(
             when ((AppSettings(this).appTheme)) {
